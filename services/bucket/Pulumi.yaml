@@ -1,0 +1,33 @@
+name: bucket-service
+description: On-demand S3 bucket creation service for Pulumi Kubernetes Operator
+runtime: go
+config:
+  aws:region:
+    description: AWS region for the bucket
+    default: eu-north-1
+  bucket-service:bucketName:
+    description: Name of the S3 bucket to create
+  bucket-service:versioning:
+    description: Enable versioning on the bucket
+    default: "false"
+  bucket-service:encryption:
+    description: Enable server-side encryption (AES256 or aws:kms)
+    default: "AES256"
+  bucket-service:lifecycleEnabled:
+    description: Enable lifecycle rules for old versions
+    default: "false"
+  bucket-service:lifecycleDays:
+    description: Days after which to transition old versions to IA storage
+    default: "90"
+  bucket-service:expirationDays:
+    description: Days after which to expire old versions (0 = disabled)
+    default: "0"
+  bucket-service:publicAccess:
+    description: Allow public access to the bucket (not recommended)
+    default: "false"
+  pulumi:tags:
+    value:
+      pulumi:template: aws-go
+      service: bucket
+pulumi:
+  disable-default-providers: ["*"]

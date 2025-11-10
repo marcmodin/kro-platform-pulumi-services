@@ -1,0 +1,10 @@
+name: kro-platform-bootstrap
+description: Bootstrap stack for Pulumi state bucket
+runtime: go
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-go
+      purpose: state-backend
+pulumi:
+  disable-default-providers: ["*"]
