@@ -4,7 +4,7 @@ runtime: go
 config:
   aws:region:
     description: AWS region for the bucket
-    default: eu-north-1
+    value: eu-north-1
   bucket-service:bucketName:
     description: Name of the S3 bucket to create
   bucket-service:versioning:
