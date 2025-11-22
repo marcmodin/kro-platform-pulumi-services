@@ -1,0 +1,24 @@
+name: iam-role-service
+description: On-demand IAM role and policy creation service for Pulumi Kubernetes Operator
+runtime: go
+config:
+  aws:region:
+    description: AWS region for the IAM resources
+    value: eu-north-1
+  iam-role-service:roleName:
+    description: Name of the IAM role to create
+  iam-role-service:description:
+    description: Description for the IAM role
+    default: ""
+  iam-role-service:policies:
+    description: |
+      Policy configurations in format: policyType:resource1,resource2;policyType2:resource3
+      Available policy types:
+      - s3-full-access: Full access to S3 buckets
+      - s3-read-only: Read-only access to S3 buckets
+      - s3-write-only: Write-only access to S3 buckets
+      - dynamodb-full-access: Full access to DynamoDB tables
+      - dynamodb-read-only: Read-only access to DynamoDB tables
+      Example: "s3-full-access:arn:aws:s3:::my-bucket;s3-read-only:arn:aws:s3:::public-bucket"
+pulumi:
+  disable-default-providers: ["*"]
