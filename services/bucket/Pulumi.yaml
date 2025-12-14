@@ -25,6 +25,9 @@ config:
   bucket-service:publicAccess:
     description: Allow public access to the bucket (not recommended)
     default: "false"
+  bucket-service:assumeRoleArn:
+    description: ARN of the IAM role to assume in the target account (optional, for cross-account deployments)
+    default: ""
   pulumi:tags:
     value:
       pulumi:template: aws-go

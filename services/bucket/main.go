@@ -25,6 +25,7 @@ func main() {
 			lifecycleDays = 90
 		}
 		expirationDays := cfg.GetInt("expirationDays")
+		assumeRoleArn := cfg.Get("assumeRoleArn")
 
 		// Get AWS region from config
 		awsCfg := config.New(ctx, "aws")
@@ -34,7 +35,7 @@ func main() {
 		}
 
 		// Create AWS provider
-		provider, err := aws.NewProvider(ctx, "aws-provider", &aws.ProviderArgs{
+		providerArgs := &aws.ProviderArgs{
 			Region: pulumi.String(region),
 			DefaultTags: &aws.ProviderDefaultTagsArgs{
 				Tags: pulumi.StringMap{
@@ -43,7 +44,19 @@ func main() {
 					"managed_by":   pulumi.String("pulumi-kubernetes-operator"),
 				},
 			},
-		})
+		}
+
+		// If assumeRoleArn is provided, configure cross-account access
+		if assumeRoleArn != "" {
+			providerArgs.AssumeRoles = aws.ProviderAssumeRoleArray{
+				&aws.ProviderAssumeRoleArgs{
+					RoleArn:     pulumi.StringPtr(assumeRoleArn),
+					SessionName: pulumi.String("PulumiBucketService"),
+				},
+			}
+		}
+
+		provider, err := aws.NewProvider(ctx, "aws-provider", providerArgs)
 		if err != nil {
 			return err
 		}
