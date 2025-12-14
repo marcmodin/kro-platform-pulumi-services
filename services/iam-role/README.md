@@ -71,6 +71,45 @@ s3-full-access:arn:aws:s3:::my-app-data;dynamodb-read-only:arn:aws:dynamodb:eu-n
 - `policyArns` - Array of policy ARNs
 - `availablePolicyTemplates` - List of available policy types
 
+## Cross-Account Assume Role
+
+When the Pulumi stack runs from a different AWS account than where you want to create the IAM role, you must configure `assumeRoleArn` to assume a role with permissions to create IAM resources.
+
+### Prerequisites
+
+1. An IAM role in the target account with:
+   - Trust policy allowing the assuming account to assume it
+   - Permissions for `iam:CreateRole`, `iam:CreatePolicy`, `iam:AttachRolePolicy`, `iam:DeleteRole`, `iam:DeletePolicy`, `iam:DetachRolePolicy`, etc.
+
+2. The assuming account credentials must have permission to assume this role
+
+### Example Trust Policy (in target account)
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ASSUMING_ACCOUNT_ID:root"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+### Stack Configuration with Assume Role
+
+```yaml
+config:
+  aws:region: eu-north-1
+  iam-role-service:roleName: my-app-role
+  iam-role-service:policies: "s3-full-access:arn:aws:s3:::my-bucket"
+  iam-role-service:assumeRoleArn: arn:aws:iam::TARGET_ACCOUNT_ID:role/IAMAdministrator
+```
+
 ## Usage with Kubernetes Operator
 
 ### Example 1: S3 Full Access Role
@@ -268,45 +307,6 @@ To add new policy types, edit `main.go` and add entries to the `policyTemplates`
 Then users can use it like:
 ```
 sqs-full-access:arn:aws:sqs:eu-north-1:123456789012:my-queue
-```
-
-## Cross-Account Assume Role
-
-When the Pulumi stack runs from a different AWS account than where you want to create the IAM role, you must configure `assumeRoleArn` to assume a role with permissions to create IAM resources.
-
-### Prerequisites
-
-1. An IAM role in the target account with:
-   - Trust policy allowing the assuming account to assume it
-   - Permissions for `iam:CreateRole`, `iam:CreatePolicy`, `iam:AttachRolePolicy`, `iam:DeleteRole`, `iam:DeletePolicy`, `iam:DetachRolePolicy`, etc.
-
-2. The assuming account credentials must have permission to assume this role
-
-### Example Trust Policy (in target account)
-
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "arn:aws:iam::ASSUMING_ACCOUNT_ID:root"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-```
-
-### Stack Configuration with Assume Role
-
-```yaml
-config:
-  aws:region: eu-north-1
-  iam-role-service:roleName: my-app-role
-  iam-role-service:policies: "s3-full-access:arn:aws:s3:::my-bucket"
-  iam-role-service:assumeRoleArn: arn:aws:iam::TARGET_ACCOUNT_ID:role/IAMAdministrator
 ```
 
 ## Security Considerations
