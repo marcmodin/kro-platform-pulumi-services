@@ -9,6 +9,7 @@ On-demand IAM role and policy provisioning service for the Pulumi Kubernetes Ope
 - Multiple policies can be attached to a single role
 - Support for S3 and DynamoDB services (easily expandable)
 - Automatic policy naming and management
+- Support for cross-account assume role when running from a different account
 - Configurable AWS region deployment
 
 ## Available Policy Templates
@@ -29,6 +30,7 @@ On-demand IAM role and policy provisioning service for the Pulumi Kubernetes Ope
 | `iam-role-service:description` | No | Auto-generated | Description for the IAM role |
 | `iam-role-service:policies` | Yes | - | Policy configurations (see format below) |
 | `aws:region` | No | `eu-north-1` | AWS region |
+| `iam-role-service:assumeRoleArn` | No | - | ARN of IAM role to assume in the target account |
 
 ### Policy Configuration Format
 
@@ -266,6 +268,45 @@ To add new policy types, edit `main.go` and add entries to the `policyTemplates`
 Then users can use it like:
 ```
 sqs-full-access:arn:aws:sqs:eu-north-1:123456789012:my-queue
+```
+
+## Cross-Account Assume Role
+
+When the Pulumi stack runs from a different AWS account than where you want to create the IAM role, you must configure `assumeRoleArn` to assume a role with permissions to create IAM resources.
+
+### Prerequisites
+
+1. An IAM role in the target account with:
+   - Trust policy allowing the assuming account to assume it
+   - Permissions for `iam:CreateRole`, `iam:CreatePolicy`, `iam:AttachRolePolicy`, `iam:DeleteRole`, `iam:DeletePolicy`, `iam:DetachRolePolicy`, etc.
+
+2. The assuming account credentials must have permission to assume this role
+
+### Example Trust Policy (in target account)
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ASSUMING_ACCOUNT_ID:root"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+```
+
+### Stack Configuration with Assume Role
+
+```yaml
+config:
+  aws:region: eu-north-1
+  iam-role-service:roleName: my-app-role
+  iam-role-service:policies: "s3-full-access:arn:aws:s3:::my-bucket"
+  iam-role-service:assumeRoleArn: arn:aws:iam::TARGET_ACCOUNT_ID:role/IAMAdministrator
 ```
 
 ## Security Considerations

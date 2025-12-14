@@ -20,5 +20,8 @@ config:
       - dynamodb-full-access: Full access to DynamoDB tables
       - dynamodb-read-only: Read-only access to DynamoDB tables
       Example: "s3-full-access:arn:aws:s3:::my-bucket;s3-read-only:arn:aws:s3:::public-bucket"
+  iam-role-service:assumeRoleArn:
+    description: ARN of the IAM role to assume in the target account (optional, for cross-account deployments)
+    default: ""
 pulumi:
   disable-default-providers: ["*"]
