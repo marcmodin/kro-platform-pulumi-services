@@ -1,3 +1,4 @@
 # Pulumi
 .pulumi
 *.secret.*
+Pulumi.example.yaml

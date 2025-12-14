@@ -1,0 +1,25 @@
+name: account-service
+description: On-demand AWS account creation service for Pulumi Kubernetes Operator
+runtime: go
+config:
+  aws:region:
+    description: AWS region for the Organizations API (typically eu-north-1)
+    value: eu-north-1
+  account-service:accountName:
+    description: Name of the AWS account to create
+  account-service:email:
+    description: Email address for the root user of the new account
+  account-service:roleName:
+    description: Name of the IAM role for cross-account access
+    default: OrganizationAccountAccessRole
+  account-service:parentId:
+    description: ID of the parent organizational unit (OU) or root to place the account in (optional)
+    default: ""
+  account-service:assumeRoleArn:
+    description: ARN of the IAM role to assume in the organization management account (optional)
+    default: ""
+  account-service:suspendedOuId:
+    description: OU ID to move the account to when the stack is destroyed (optional). If set, account is moved here instead of being closed.
+    default: ""
+pulumi:
+  disable-default-providers: ["*"]
