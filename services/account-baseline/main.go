@@ -101,7 +101,7 @@ func main() {
 
 		// Create the readonly role
 		readonlyRole, err := iamrole.NewRole(ctx, "platform-readonly-role", &iamrole.RoleArgs{
-			Name:           pulumi.String("PlatformReadOnlyRole"),
+			Name:           pulumi.String("platform-readonly-role"),
 			Description:    pulumi.String("Platform cross-account read-only role managed by Pulumi"),
 			TrustPolicy:    trustPolicy,
 			PolicyTemplate: "readonly",
@@ -118,13 +118,13 @@ func main() {
 		// Create password policy if enabled
 		if passwordPolicyEnabled {
 			passwordPolicyArgs := &iam.AccountPasswordPolicyArgs{
-				MinimumPasswordLength:        pulumi.Int(passwordPolicyMinLength),
-				RequireLowercaseCharacters:   pulumi.Bool(true),
-				RequireUppercaseCharacters:   pulumi.Bool(true),
-				RequireNumbers:               pulumi.Bool(true),
-				RequireSymbols:               pulumi.Bool(true),
-				AllowUsersToChangePassword:   pulumi.Bool(true),
-				HardExpiry:                   pulumi.Bool(false),
+				MinimumPasswordLength:      pulumi.Int(passwordPolicyMinLength),
+				RequireLowercaseCharacters: pulumi.Bool(true),
+				RequireUppercaseCharacters: pulumi.Bool(true),
+				RequireNumbers:             pulumi.Bool(true),
+				RequireSymbols:             pulumi.Bool(true),
+				AllowUsersToChangePassword: pulumi.Bool(true),
+				HardExpiry:                 pulumi.Bool(false),
 			}
 
 			if passwordPolicyMaxAgeDays > 0 {
