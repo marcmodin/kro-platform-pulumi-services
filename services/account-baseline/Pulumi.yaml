@@ -1,0 +1,14 @@
+name: account-baseline-service
+description: Account baseline service that deploys platform-assumable IAM roles (admin and readonly)
+runtime: go
+config:
+  aws:region:
+    description: AWS region
+    value: eu-north-1
+  account-baseline-service:trustedAccountId:
+    description: AWS account ID that is allowed to assume the platform roles
+  account-baseline-service:assumeRoleArn:
+    description: ARN of the IAM role to assume for deployment (e.g., OrganizationAccountAccessRole)
+    default: ""
+pulumi:
+  disable-default-providers: ["*"]

@@ -1,4 +1,4 @@
-module github.com/marcmodin/kro-platform-pulumi-demo/pkg/iamrole
+module github.com/marcmodin/kro-platform-pulumi-services/pkg/iamrole
 
 go 1.25.0
 
