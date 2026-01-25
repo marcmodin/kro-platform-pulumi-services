@@ -37,10 +37,10 @@ Deploys account baseline resources to a target AWS account. This service creates
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `passwordPolicy:enabled` | `false` | Enable IAM account password policy |
-| `passwordPolicy:minLength` | `14` | Minimum password length |
-| `passwordPolicy:maxAgeDays` | `0` | Maximum password age in days (0 = no expiry) |
-| `passwordPolicy:reusePrevention` | `0` | Number of previous passwords to prevent reuse |
+| `passwordPolicyEnabled` | `false` | Enable IAM account password policy |
+| `passwordPolicyMinLength` | `14` | Minimum password length |
+| `passwordPolicyMaxAgeDays` | `0` | Maximum password age in days (0 = no expiry) |
+| `passwordPolicyReusePrevention` | `0` | Number of previous passwords to prevent reuse |
 
 ### Optional - Region Settings
 
@@ -52,11 +52,11 @@ Deploys account baseline resources to a target AWS account. This service creates
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `budget:enabled` | `false` | Enable monthly cost budget |
-| `budget:limitAmount` | `100` | Budget limit amount |
-| `budget:limitUnit` | `USD` | Budget limit currency |
-| `budget:notificationEmail` | - | Email for budget notifications |
-| `budget:threshold` | `80` | Threshold percentage for forecasted notification |
+| `budgetEnabled` | `false` | Enable monthly cost budget |
+| `budgetLimitAmount` | `100` | Budget limit amount |
+| `budgetLimitUnit` | `USD` | Budget limit currency |
+| `budgetNotificationEmail` | - | Email for budget notifications |
+| `budgetThreshold` | `80` | Threshold percentage for forecasted notification |
 
 ## Outputs
 
@@ -87,18 +87,18 @@ config:
   account-baseline-service:trustedAccountId: "111111111111"
   account-baseline-service:assumeRoleArn: arn:aws:iam::TARGET_ACCOUNT_ID:role/OrganizationAccountAccessRole
   # Password policy
-  account-baseline-service:passwordPolicy:enabled: true
-  account-baseline-service:passwordPolicy:minLength: 14
-  account-baseline-service:passwordPolicy:maxAgeDays: 90
-  account-baseline-service:passwordPolicy:reusePrevention: 5
+  account-baseline-service:passwordPolicyEnabled: true
+  account-baseline-service:passwordPolicyMinLength: 14
+  account-baseline-service:passwordPolicyMaxAgeDays: 90
+  account-baseline-service:passwordPolicyReusePrevention: 5
   # Enabled regions
   account-baseline-service:enabledRegions: "eu-west-1,eu-central-1,us-east-1"
   # Budget
-  account-baseline-service:budget:enabled: true
-  account-baseline-service:budget:limitAmount: "500"
-  account-baseline-service:budget:limitUnit: USD
-  account-baseline-service:budget:notificationEmail: alerts@example.com
-  account-baseline-service:budget:threshold: 80
+  account-baseline-service:budgetEnabled: true
+  account-baseline-service:budgetLimitAmount: "500"
+  account-baseline-service:budgetLimitUnit: USD
+  account-baseline-service:budgetNotificationEmail: alerts@example.com
+  account-baseline-service:budgetThreshold: 80
 ```
 
 ## Bootstrap Deployment
@@ -133,10 +133,10 @@ spec:
   config:
     account-baseline-service:trustedAccountId: "111111111111"
     account-baseline-service:assumeRoleArn: arn:aws:iam::123456789012:role/OrganizationAccountAccessRole
-    account-baseline-service:passwordPolicy:enabled: "true"
-    account-baseline-service:budget:enabled: "true"
-    account-baseline-service:budget:limitAmount: "200"
-    account-baseline-service:budget:notificationEmail: platform-alerts@example.com
+    account-baseline-service:passwordPolicyEnabled: "true"
+    account-baseline-service:budgetEnabled: "true"
+    account-baseline-service:budgetLimitAmount: "200"
+    account-baseline-service:budgetNotificationEmail: platform-alerts@example.com
   destroyOnFinalize: false
 ```
 
@@ -147,10 +147,10 @@ cd services/account-baseline
 pulumi stack init account-123456789012
 pulumi config set trustedAccountId 111111111111
 pulumi config set assumeRoleArn arn:aws:iam::123456789012:role/OrganizationAccountAccessRole
-pulumi config set passwordPolicy:enabled true
-pulumi config set budget:enabled true
-pulumi config set budget:limitAmount 200
-pulumi config set budget:notificationEmail alerts@example.com
+pulumi config set passwordPolicyEnabled true
+pulumi config set budgetEnabled true
+pulumi config set budgetLimitAmount 200
+pulumi config set budgetNotificationEmail alerts@example.com
 pulumi up
 ```
 
