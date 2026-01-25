@@ -33,7 +33,8 @@ func main() {
 		passwordPolicyMaxAgeDays := cfg.GetInt("passwordPolicyMaxAgeDays")
 		passwordPolicyReusePrevention := cfg.GetInt("passwordPolicyReusePrevention")
 
-		// Optional: enabled regions (comma-separated list of region names to enable)
+		// Optional: additional opt-in regions to enable (comma-separated)
+		// Only needed for opt-in regions not enabled by default (e.g., ap-east-1, me-south-1)
 		enabledRegionsStr := cfg.Get("enabledRegions")
 
 		// Optional: budget settings (flat keys for Pulumi K8s operator compatibility)

@@ -46,7 +46,7 @@ Deploys account baseline resources to a target AWS account. This service creates
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `enabledRegions` | - | Comma-separated list of AWS regions to enable |
+| `enabledRegions` | - | Comma-separated list of additional opt-in AWS regions to enable (e.g., "ap-east-1,me-south-1"). Only needed for opt-in regions not enabled by default. |
 
 ### Optional - Budget
 

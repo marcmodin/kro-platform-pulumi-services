@@ -26,8 +26,8 @@ config:
     default: 10
   # Optional: Region settings
   account-baseline-service:enabledRegions:
-    description: Comma-separated list of AWS regions to enable (e.g., "eu-west-1,us-east-1")
-    default: "eu-north-1,eu-central-1,us-east-1"
+    description: Comma-separated list of additional opt-in AWS regions to enable (e.g., "ap-east-1,me-south-1"). Only needed for opt-in regions not enabled by default.
+    default: ""
   # Optional: Budget settings
   account-baseline-service:budgetEnabled:
     description: Enable monthly cost budget
