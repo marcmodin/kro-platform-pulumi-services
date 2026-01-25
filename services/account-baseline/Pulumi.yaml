@@ -1,14 +1,48 @@
 name: account-baseline-service
-description: Account baseline service that deploys platform-assumable IAM roles (admin and readonly)
+description: Account baseline service that deploys platform-assumable IAM roles, password policy, region settings, and budgets
 runtime: go
 config:
   aws:region:
     description: AWS region
     value: eu-north-1
+  # Required: cross-account trust
   account-baseline-service:trustedAccountId:
-    description: AWS account ID that is allowed to assume the platform roles
+    description: AWS account ID that is allowed to assume the platform readonly role
   account-baseline-service:assumeRoleArn:
     description: ARN of the IAM role to assume for deployment (e.g., OrganizationAccountAccessRole)
     default: ""
+  # Optional: Password policy settings
+  account-baseline-service:passwordPolicy:enabled:
+    description: Enable IAM account password policy
+    default: true
+  account-baseline-service:passwordPolicy:minLength:
+    description: Minimum password length (default 14)
+    default: 14
+  account-baseline-service:passwordPolicy:maxAgeDays:
+    description: Maximum password age in days (0 = no expiry)
+    default: 90
+  account-baseline-service:passwordPolicy:reusePrevention:
+    description: Number of previous passwords to prevent reuse (0 = no prevention)
+    default: 10
+  # Optional: Region settings
+  account-baseline-service:enabledRegions:
+    description: Comma-separated list of AWS regions to enable (e.g., "eu-west-1,us-east-1")
+    default: "eu-north-1,eu-central-1,us-east-1"
+  # Optional: Budget settings
+  account-baseline-service:budget:enabled:
+    description: Enable monthly cost budget
+    default: false
+  account-baseline-service:budget:limitAmount:
+    description: Budget limit amount (default 100)
+    default: "100"
+  account-baseline-service:budget:limitUnit:
+    description: Budget limit currency (default USD)
+    default: "USD"
+  account-baseline-service:budget:notificationEmail:
+    description: Email address to receive budget notifications
+    default: ""
+  account-baseline-service:budget:threshold:
+    description: Budget threshold percentage for forecasted notification (default 80)
+    default: 80
 pulumi:
   disable-default-providers: ["*"]

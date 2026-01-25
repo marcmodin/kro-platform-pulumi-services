@@ -1,7 +1,12 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/account"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/budgets"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 
@@ -18,6 +23,34 @@ func main() {
 
 		// Optional: assume role for deploying into the target account
 		assumeRoleArn := cfg.Get("assumeRoleArn")
+
+		// Optional: password policy settings
+		passwordPolicyEnabled := cfg.GetBool("passwordPolicy:enabled")
+		passwordPolicyMinLength := cfg.GetInt("passwordPolicy:minLength")
+		if passwordPolicyMinLength == 0 {
+			passwordPolicyMinLength = 14
+		}
+		passwordPolicyMaxAge := cfg.GetInt("passwordPolicy:maxAgeDays")
+		passwordPolicyReusePrevention := cfg.GetInt("passwordPolicy:reusePrevention")
+
+		// Optional: enabled regions (comma-separated list of region names to enable)
+		enabledRegionsStr := cfg.Get("enabledRegions")
+
+		// Optional: budget settings
+		budgetEnabled := cfg.GetBool("budget:enabled")
+		budgetLimitAmount := cfg.Get("budget:limitAmount")
+		if budgetLimitAmount == "" {
+			budgetLimitAmount = "100"
+		}
+		budgetLimitUnit := cfg.Get("budget:limitUnit")
+		if budgetLimitUnit == "" {
+			budgetLimitUnit = "USD"
+		}
+		budgetNotificationEmail := cfg.Get("budget:notificationEmail")
+		budgetThreshold := cfg.GetFloat64("budget:threshold")
+		if budgetThreshold == 0 {
+			budgetThreshold = 80
+		}
 
 		// Get AWS region from config
 		awsCfg := config.New(ctx, "aws")
@@ -59,21 +92,10 @@ func main() {
 			return err
 		}
 
-		// Trust policy for both roles
+		// Trust policy for the readonly role
 		trustPolicy := iamrole.TrustPolicyArgs{
 			Type:            "cross-account",
 			TrustedAccounts: []string{trustedAccountId},
-		}
-
-		// Create the admin role
-		adminRole, err := iamrole.NewRole(ctx, "platform-admin-role", &iamrole.RoleArgs{
-			Name:           pulumi.String("PlatformAdminRole"),
-			Description:    pulumi.String("Platform cross-account admin role managed by Pulumi"),
-			TrustPolicy:    trustPolicy,
-			PolicyTemplate: "admin",
-		}, pulumi.Provider(provider))
-		if err != nil {
-			return err
 		}
 
 		// Create the readonly role
@@ -87,12 +109,102 @@ func main() {
 			return err
 		}
 
-		// Export outputs
+		// Export role outputs
 		ctx.Export("accountId", pulumi.String(current.AccountId))
-		ctx.Export("adminRoleArn", adminRole.Arn)
-		ctx.Export("adminRoleName", adminRole.Name)
 		ctx.Export("readonlyRoleArn", readonlyRole.Arn)
 		ctx.Export("readonlyRoleName", readonlyRole.Name)
+
+		// Create password policy if enabled
+		if passwordPolicyEnabled {
+			passwordPolicyArgs := &iam.AccountPasswordPolicyArgs{
+				MinimumPasswordLength:        pulumi.Int(passwordPolicyMinLength),
+				RequireLowercaseCharacters:   pulumi.Bool(true),
+				RequireUppercaseCharacters:   pulumi.Bool(true),
+				RequireNumbers:               pulumi.Bool(true),
+				RequireSymbols:               pulumi.Bool(true),
+				AllowUsersToChangePassword:   pulumi.Bool(true),
+				HardExpiry:                   pulumi.Bool(false),
+			}
+
+			if passwordPolicyMaxAge > 0 {
+				passwordPolicyArgs.MaxPasswordAge = pulumi.Int(passwordPolicyMaxAge)
+			}
+			if passwordPolicyReusePrevention > 0 {
+				passwordPolicyArgs.PasswordReusePrevention = pulumi.Int(passwordPolicyReusePrevention)
+			}
+
+			passwordPolicy, err := iam.NewAccountPasswordPolicy(ctx, "account-password-policy", passwordPolicyArgs, pulumi.Provider(provider))
+			if err != nil {
+				return err
+			}
+
+			ctx.Export("passwordPolicyEnabled", pulumi.Bool(true))
+			ctx.Export("passwordPolicyMinLength", passwordPolicy.MinimumPasswordLength)
+		}
+
+		// Enable/disable regions if specified
+		if enabledRegionsStr != "" {
+			regions := strings.Split(enabledRegionsStr, ",")
+			for _, r := range regions {
+				r = strings.TrimSpace(r)
+				if r == "" {
+					continue
+				}
+
+				_, err := account.NewRegion(ctx, "region-"+r, &account.RegionArgs{
+					RegionName: pulumi.String(r),
+					Enabled:    pulumi.Bool(true),
+				}, pulumi.Provider(provider))
+				if err != nil {
+					return err
+				}
+			}
+
+			ctx.Export("enabledRegions", pulumi.String(enabledRegionsStr))
+		}
+
+		// Create budget if enabled
+		if budgetEnabled {
+			budgetArgs := &budgets.BudgetArgs{
+				BudgetType:  pulumi.String("COST"),
+				LimitAmount: pulumi.String(budgetLimitAmount),
+				LimitUnit:   pulumi.String(budgetLimitUnit),
+				TimeUnit:    pulumi.String("MONTHLY"),
+			}
+
+			// Add notification if email is provided
+			if budgetNotificationEmail != "" {
+				budgetArgs.Notifications = budgets.BudgetNotificationArray{
+					&budgets.BudgetNotificationArgs{
+						ComparisonOperator: pulumi.String("GREATER_THAN"),
+						Threshold:          pulumi.Float64(budgetThreshold),
+						ThresholdType:      pulumi.String("PERCENTAGE"),
+						NotificationType:   pulumi.String("FORECASTED"),
+						SubscriberEmailAddresses: pulumi.StringArray{
+							pulumi.String(budgetNotificationEmail),
+						},
+					},
+					&budgets.BudgetNotificationArgs{
+						ComparisonOperator: pulumi.String("GREATER_THAN"),
+						Threshold:          pulumi.Float64(100),
+						ThresholdType:      pulumi.String("PERCENTAGE"),
+						NotificationType:   pulumi.String("ACTUAL"),
+						SubscriberEmailAddresses: pulumi.StringArray{
+							pulumi.String(budgetNotificationEmail),
+						},
+					},
+				}
+			}
+
+			budget, err := budgets.NewBudget(ctx, "monthly-cost-budget", budgetArgs, pulumi.Provider(provider))
+			if err != nil {
+				return err
+			}
+
+			ctx.Export("budgetName", budget.Name)
+			ctx.Export("budgetLimitAmount", pulumi.String(budgetLimitAmount))
+			ctx.Export("budgetLimitUnit", pulumi.String(budgetLimitUnit))
+		}
 
 		return nil
 	})
