@@ -6,8 +6,8 @@
       "resolved": "github:NixOS/nixpkgs/e99366c665bdd53b7b500ccdc5226675cfc51f45?lastModified=1761656231&narHash=sha256-EiED5k6gXTWoAIS8yQqi5mAX6ojnzpHwAQTS3ykeYMg%3D"
     },
     "pulumi@3.192.0": {
-      "last_modified": "2025-10-07T08:41:47Z",
-      "resolved": "github:NixOS/nixpkgs/bce5fe2bb998488d8e7e7856315f90496723793c#pulumi",
+      "last_modified": "2025-12-31T03:27:36Z",
+      "resolved": "github:NixOS/nixpkgs/f665af0cdb70ed27e1bd8f9fdfecaf451260fc55#pulumi",
       "source": "devbox-search",
       "version": "3.192.0",
       "systems": {
@@ -15,41 +15,41 @@
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/v9xvlhmbvipslix9hfczpzc247y5zjjy-pulumi-3.192.0",
+              "path": "/nix/store/n8x2hgx3iay2kbzak7ilqflw00m5gxl3-pulumi-3.192.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/v9xvlhmbvipslix9hfczpzc247y5zjjy-pulumi-3.192.0"
+          "store_path": "/nix/store/n8x2hgx3iay2kbzak7ilqflw00m5gxl3-pulumi-3.192.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/j2lf13dql4d30xnfk1cznsixzjjj131j-pulumi-3.192.0",
+              "path": "/nix/store/dh0z41gpn9wrmka6xk546dxmz7w0ww1x-pulumi-3.192.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/j2lf13dql4d30xnfk1cznsixzjjj131j-pulumi-3.192.0"
+          "store_path": "/nix/store/dh0z41gpn9wrmka6xk546dxmz7w0ww1x-pulumi-3.192.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vm3asp52ymnv4zvmsi8hyrb2a6rcnhya-pulumi-3.192.0",
+              "path": "/nix/store/hlkfclrqngq31rvlhxf8249zgmq5vc5r-pulumi-3.192.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vm3asp52ymnv4zvmsi8hyrb2a6rcnhya-pulumi-3.192.0"
+          "store_path": "/nix/store/hlkfclrqngq31rvlhxf8249zgmq5vc5r-pulumi-3.192.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/vhwiimxi8jls34660ha4hfrxxfrf2lfc-pulumi-3.192.0",
+              "path": "/nix/store/rf2dq59kalsqc64yp31g4p8gdvjdznsz-pulumi-3.192.0",
               "default": true
             }
           ],
-          "store_path": "/nix/store/vhwiimxi8jls34660ha4hfrxxfrf2lfc-pulumi-3.192.0"
+          "store_path": "/nix/store/rf2dq59kalsqc64yp31g4p8gdvjdznsz-pulumi-3.192.0"
         }
       }
     },
