@@ -24,30 +24,30 @@ func main() {
 		// Optional: assume role for deploying into the target account
 		assumeRoleArn := cfg.Get("assumeRoleArn")
 
-		// Optional: password policy settings
-		passwordPolicyEnabled := cfg.GetBool("passwordPolicy:enabled")
-		passwordPolicyMinLength := cfg.GetInt("passwordPolicy:minLength")
+		// Optional: password policy settings (flat keys for Pulumi K8s operator compatibility)
+		passwordPolicyEnabled := cfg.GetBool("passwordPolicyEnabled")
+		passwordPolicyMinLength := cfg.GetInt("passwordPolicyMinLength")
 		if passwordPolicyMinLength == 0 {
 			passwordPolicyMinLength = 14
 		}
-		passwordPolicyMaxAge := cfg.GetInt("passwordPolicy:maxAgeDays")
-		passwordPolicyReusePrevention := cfg.GetInt("passwordPolicy:reusePrevention")
+		passwordPolicyMaxAgeDays := cfg.GetInt("passwordPolicyMaxAgeDays")
+		passwordPolicyReusePrevention := cfg.GetInt("passwordPolicyReusePrevention")
 
 		// Optional: enabled regions (comma-separated list of region names to enable)
 		enabledRegionsStr := cfg.Get("enabledRegions")
 
-		// Optional: budget settings
-		budgetEnabled := cfg.GetBool("budget:enabled")
-		budgetLimitAmount := cfg.Get("budget:limitAmount")
+		// Optional: budget settings (flat keys for Pulumi K8s operator compatibility)
+		budgetEnabled := cfg.GetBool("budgetEnabled")
+		budgetLimitAmount := cfg.Get("budgetLimitAmount")
 		if budgetLimitAmount == "" {
 			budgetLimitAmount = "100"
 		}
-		budgetLimitUnit := cfg.Get("budget:limitUnit")
+		budgetLimitUnit := cfg.Get("budgetLimitUnit")
 		if budgetLimitUnit == "" {
 			budgetLimitUnit = "USD"
 		}
-		budgetNotificationEmail := cfg.Get("budget:notificationEmail")
-		budgetThreshold := cfg.GetFloat64("budget:threshold")
+		budgetNotificationEmail := cfg.Get("budgetNotificationEmail")
+		budgetThreshold := cfg.GetFloat64("budgetThreshold")
 		if budgetThreshold == 0 {
 			budgetThreshold = 80
 		}
@@ -126,8 +126,8 @@ func main() {
 				HardExpiry:                   pulumi.Bool(false),
 			}
 
-			if passwordPolicyMaxAge > 0 {
-				passwordPolicyArgs.MaxPasswordAge = pulumi.Int(passwordPolicyMaxAge)
+			if passwordPolicyMaxAgeDays > 0 {
+				passwordPolicyArgs.MaxPasswordAge = pulumi.Int(passwordPolicyMaxAgeDays)
 			}
 			if passwordPolicyReusePrevention > 0 {
 				passwordPolicyArgs.PasswordReusePrevention = pulumi.Int(passwordPolicyReusePrevention)

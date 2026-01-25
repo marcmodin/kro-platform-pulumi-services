@@ -12,16 +12,16 @@ config:
     description: ARN of the IAM role to assume for deployment (e.g., OrganizationAccountAccessRole)
     default: ""
   # Optional: Password policy settings
-  account-baseline-service:passwordPolicy:enabled:
+  account-baseline-service:passwordPolicyEnabled:
     description: Enable IAM account password policy
     default: true
-  account-baseline-service:passwordPolicy:minLength:
+  account-baseline-service:passwordPolicyMinLength:
     description: Minimum password length (default 14)
     default: 14
-  account-baseline-service:passwordPolicy:maxAgeDays:
+  account-baseline-service:passwordPolicyMaxAgeDays:
     description: Maximum password age in days (0 = no expiry)
     default: 90
-  account-baseline-service:passwordPolicy:reusePrevention:
+  account-baseline-service:passwordPolicyReusePrevention:
     description: Number of previous passwords to prevent reuse (0 = no prevention)
     default: 10
   # Optional: Region settings
@@ -29,19 +29,19 @@ config:
     description: Comma-separated list of AWS regions to enable (e.g., "eu-west-1,us-east-1")
     default: "eu-north-1,eu-central-1,us-east-1"
   # Optional: Budget settings
-  account-baseline-service:budget:enabled:
+  account-baseline-service:budgetEnabled:
     description: Enable monthly cost budget
     default: false
-  account-baseline-service:budget:limitAmount:
+  account-baseline-service:budgetLimitAmount:
     description: Budget limit amount (default 100)
     default: "100"
-  account-baseline-service:budget:limitUnit:
+  account-baseline-service:budgetLimitUnit:
     description: Budget limit currency (default USD)
     default: "USD"
-  account-baseline-service:budget:notificationEmail:
+  account-baseline-service:budgetNotificationEmail:
     description: Email address to receive budget notifications
     default: ""
-  account-baseline-service:budget:threshold:
+  account-baseline-service:budgetThreshold:
     description: Budget threshold percentage for forecasted notification (default 80)
     default: 80
 pulumi:
