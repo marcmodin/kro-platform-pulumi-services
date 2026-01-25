@@ -23,5 +23,23 @@ config:
   iam-role-service:assumeRoleArn:
     description: ARN of the IAM role to assume in the target account (optional, for cross-account deployments)
     default: ""
+  iam-role-service:trustPolicyType:
+    description: |
+      Type of trust policy for the IAM role. Determines who can assume the role.
+      - account: Current AWS account root can assume the role
+      - service: AWS service(s) can assume the role (requires trustedServices)
+      - cross-account: External AWS account(s) can assume the role (requires trustedAccounts)
+  iam-role-service:trustedServices:
+    description: |
+      Comma-separated list of AWS service principals that can assume the role.
+      Required when trustPolicyType is "service".
+      Example: "ec2.amazonaws.com" or "lambda.amazonaws.com,ecs-tasks.amazonaws.com"
+    default: ""
+  iam-role-service:trustedAccounts:
+    description: |
+      Comma-separated list of AWS account IDs that can assume the role.
+      Required when trustPolicyType is "cross-account".
+      Example: "111111111111" or "111111111111,222222222222"
+    default: ""
 pulumi:
   disable-default-providers: ["*"]

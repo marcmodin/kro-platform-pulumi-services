@@ -190,6 +190,11 @@ func main() {
 
 		assumeRoleArn := cfg.Get("assumeRoleArn")
 
+		// Trust policy configuration
+		trustPolicyType := cfg.Require("trustPolicyType")
+		trustedServices := cfg.Get("trustedServices")
+		trustedAccounts := cfg.Get("trustedAccounts")
+
 		// Get AWS region from config
 		awsCfg := config.New(ctx, "aws")
 		region := awsCfg.Get("region")
@@ -230,23 +235,96 @@ func main() {
 			return err
 		}
 
-		// Create assume role policy document (allows account root to assume the role)
-		assumeRolePolicy := map[string]interface{}{
-			"Version": "2012-10-17",
-			"Statement": []map[string]interface{}{
-				{
-					"Effect": "Allow",
-					"Principal": map[string]interface{}{
-						"AWS": fmt.Sprintf("arn:aws:iam::%s:root", current.AccountId),
+		// Build assume role policy based on trust policy type
+		var assumeRolePolicyJSON []byte
+		switch trustPolicyType {
+		case "service":
+			if trustedServices == "" {
+				return fmt.Errorf("trustedServices is required when trustPolicyType is 'service'")
+			}
+			services := strings.Split(trustedServices, ",")
+			for i := range services {
+				services[i] = strings.TrimSpace(services[i])
+			}
+			// Single service uses string, multiple services use array
+			var servicePrincipal interface{}
+			if len(services) == 1 {
+				servicePrincipal = services[0]
+			} else {
+				servicePrincipal = services
+			}
+			assumeRolePolicy := map[string]interface{}{
+				"Version": "2012-10-17",
+				"Statement": []map[string]interface{}{
+					{
+						"Effect": "Allow",
+						"Principal": map[string]interface{}{
+							"Service": servicePrincipal,
+						},
+						"Action": "sts:AssumeRole",
 					},
-					"Action": "sts:AssumeRole",
 				},
-			},
-		}
+			}
+			assumeRolePolicyJSON, err = json.Marshal(assumeRolePolicy)
+			if err != nil {
+				return err
+			}
 
-		assumeRolePolicyJSON, err := json.Marshal(assumeRolePolicy)
-		if err != nil {
-			return err
+		case "cross-account":
+			if trustedAccounts == "" {
+				return fmt.Errorf("trustedAccounts is required when trustPolicyType is 'cross-account'")
+			}
+			accounts := strings.Split(trustedAccounts, ",")
+			principals := make([]string, len(accounts))
+			for i, account := range accounts {
+				account = strings.TrimSpace(account)
+				principals[i] = fmt.Sprintf("arn:aws:iam::%s:root", account)
+			}
+			// Single account uses string, multiple accounts use array
+			var awsPrincipal interface{}
+			if len(principals) == 1 {
+				awsPrincipal = principals[0]
+			} else {
+				awsPrincipal = principals
+			}
+			assumeRolePolicy := map[string]interface{}{
+				"Version": "2012-10-17",
+				"Statement": []map[string]interface{}{
+					{
+						"Effect": "Allow",
+						"Principal": map[string]interface{}{
+							"AWS": awsPrincipal,
+						},
+						"Action": "sts:AssumeRole",
+					},
+				},
+			}
+			assumeRolePolicyJSON, err = json.Marshal(assumeRolePolicy)
+			if err != nil {
+				return err
+			}
+
+		case "account":
+			// Default: allow current account root to assume the role
+			assumeRolePolicy := map[string]interface{}{
+				"Version": "2012-10-17",
+				"Statement": []map[string]interface{}{
+					{
+						"Effect": "Allow",
+						"Principal": map[string]interface{}{
+							"AWS": fmt.Sprintf("arn:aws:iam::%s:root", current.AccountId),
+						},
+						"Action": "sts:AssumeRole",
+					},
+				},
+			}
+			assumeRolePolicyJSON, err = json.Marshal(assumeRolePolicy)
+			if err != nil {
+				return err
+			}
+
+		default:
+			return fmt.Errorf("invalid trustPolicyType: %s (must be 'service', 'account', or 'cross-account')", trustPolicyType)
 		}
 
 		// Create IAM role
@@ -361,9 +439,10 @@ func main() {
 
 		// Export configuration summary
 		ctx.Export("config", pulumi.Map{
-			"roleName":    pulumi.String(roleName),
-			"description": pulumi.String(description),
-			"region":      pulumi.String(region),
+			"roleName":        pulumi.String(roleName),
+			"description":     pulumi.String(description),
+			"region":          pulumi.String(region),
+			"trustPolicyType": pulumi.String(trustPolicyType),
 		})
 
 		// Export available policy templates for reference
