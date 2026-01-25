@@ -1,0 +1,10 @@
+go 1.25.0
+
+use (
+	./bootstrap
+	./pkg/iamrole
+	./services/account
+	./services/account-baseline
+	./services/bucket
+	./services/iam-role
+)
