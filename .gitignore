@@ -2,3 +2,5 @@
 .pulumi
 *.secret.*
 Pulumi.example.yaml
+
+go.work.sum
